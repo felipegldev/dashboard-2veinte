@@ -1,36 +1,49 @@
-// Lógica del login
+
 import { AuthService } from '../../core/auth';
-import { LoginCredentials } from '../types/auth';
+import type { LoginCredentials } from '../../types/auth';
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.querySelector<HTMLFormElement>('#login-form');
-  const emailInput = document.querySelector<HTMLInputElement>('#email');
-  const passwordInput = document.querySelector<HTMLInputElement>('#password');
-  const errorMessage = document.querySelector<HTMLDivElement>('#error-message');
-  const submitButton = document.querySelector<HTMLButtonElement>('#submit-btn');
+document.addEventListener('DOMContentLoaded', async () => {
+  const loginForm =
+    document.querySelector<HTMLFormElement>('#login-form');
 
-  // Redirigir si ya está autenticado
-  if (AuthService.isAuthenticated()) {
-    window.location.href = '/dashboard.html';
+  const emailInput =
+    document.querySelector<HTMLInputElement>('#email');
+
+  const passwordInput =
+    document.querySelector<HTMLInputElement>('#password');
+
+  const errorMessage =
+    document.querySelector<HTMLDivElement>('#error-message');
+
+  const submitButton =
+    document.querySelector<HTMLButtonElement>('#submit-btn');
+
+  if (
+    !loginForm ||
+    !emailInput ||
+    !passwordInput ||
+    !submitButton
+  ) {
+    console.error('Faltan elementos del formulario');
     return;
   }
 
-  if (!loginForm || !emailInput || !passwordInput || !submitButton) {
-    console.error('No se encontraron elementos requeridos del DOM en el Login.');
+  // Verificar sesión existente
+  if (await AuthService.isAuthenticated()) {
+    window.location.replace('/dashboard.html');
     return;
   }
 
-  loginForm.addEventListener('submit', async (event: SubmitEvent) => {
+  loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const credentials: LoginCredentials = {
       email: emailInput.value.trim(),
-      password: passwordInput.value,
+      password: passwordInput.value
     };
 
-    // Validación básica de campos
     if (!credentials.email || !credentials.password) {
-      showError('Por favor, completa todos los campos.');
+      showError('Completa todos los campos.');
       return;
     }
 
@@ -40,29 +53,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
       await AuthService.login(credentials);
 
-      // Redirección exitosa al Dashboard
-      window.location.href = '/dashboard.html';
+      window.location.replace('/dashboard.html');
+
     } catch (err) {
-      const error = err as Error;
-      showError(error.message);
+      const message = err instanceof Error
+        ? err.message
+        : 'Ocurrió un error inesperado.';
+
+      showError(message);
+
     } finally {
       setLoading(false);
     }
   });
 
-  function setLoading(isLoading: boolean): void {
-    if (!submitButton) return;
-    submitButton.disabled = isLoading;
-    submitButton.textContent = isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión';
+  function setLoading(loading: boolean) {
+    submitButton!.disabled = loading;
+    submitButton!.textContent = loading
+      ? 'Iniciando sesión...'
+      : 'Iniciar Sesión';
   }
 
-  function showError(msg: string): void {
+  function showError(message: string) {
     if (!errorMessage) return;
-    errorMessage.textContent = msg;
+    errorMessage.textContent = message;
     errorMessage.style.display = 'block';
   }
 
-  function clearError(): void {
+  function clearError() {
     if (!errorMessage) return;
     errorMessage.textContent = '';
     errorMessage.style.display = 'none';
