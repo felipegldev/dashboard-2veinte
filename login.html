@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - Dashboard 2veinte</title>
+</head>
+<body>
+  <main class="login-container">
+    <h2>Iniciar Sesión en 2veinte</h2>
+
+    <div id="error-message" style="color: red; display: none;"></div>
+
+    <form id="login-form">
+      <div>
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" required />
+      </div>
+
+      <div>
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" required />
+      </div>
+
+      <button type="submit" id="submit-btn">Iniciar Sesión</button>
+    </form>
+  </main>
+
+  <script type="module" src="/src/modules/auth/login.ts"></script>
+</body>
+</html>
